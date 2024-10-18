@@ -42,7 +42,7 @@ export default class CommandersInfo extends BasePlugin {
 
     this.locale = y18n({
       locale: this.options.language,
-      directory: "./squad-server/plugins/commander-info-locales",
+      directory: "./squad-server/plugins/commanders-info-locales",
     }).__;
 
     this.searchCommanders = this.searchCommanders.bind(this);
