@@ -1,8 +1,9 @@
 import BasePlugin from "./base-plugin.js";
+import y18n from "y18n";
 
 export default class CommandersInfo extends BasePlugin {
   static get description() {
-    return "Плагин выводящий броадкастом CMD сторон если они есть с двух сторон, выводит 1 раз через определенное время";
+    return "The plugin outputs the CMD of the sides with a broadcast, if they are on both sides, outputs 1 time after a certain time";
   }
 
   static get defaultEnabled() {
@@ -11,21 +12,26 @@ export default class CommandersInfo extends BasePlugin {
 
   static get optionsSpecification() {
     return {
+      language: {
+        required: false,
+        description: "The language of the plugin",
+        default: "en",
+      },
       startSearchTimeout: {
         required: false,
         description:
-          "Таймаут после начала матча, после которого идёт первая проверка на наличие командиров сторон за обе команды, в мс",
+          "The timeout after the start of the match, after which the first check for the presence of the commanders of the sides for both teams takes place, in ms",
         default: 10 * 60 * 1000,
       },
       repeatSearchTimeout: {
         required: false,
         description:
-          "Таймаут для повторных проверок, а появились ли командиры сторон за обе команды, в мс",
+          "Time out for repeated checks, and whether the commanders of the sides appeared for both teams, in ms",
         default: 5 * 60 * 1000,
       },
       countMaxSearch: {
         required: false,
-        description: "Количество проверок",
+        description: "Number of checks",
         default: 3,
       },
     };
@@ -33,6 +39,11 @@ export default class CommandersInfo extends BasePlugin {
 
   constructor(server, options, connectors) {
     super(server, options, connectors);
+
+    this.locale = y18n({
+      locale: this.options.language,
+      directory: "./squad-server/plugins/commander-info-locales",
+    }).__;
 
     this.searchCommanders = this.searchCommanders.bind(this);
     this.searchCommandersTimeout = null;
@@ -53,7 +64,8 @@ export default class CommandersInfo extends BasePlugin {
 
     if (commanders.length === 2 && commanders[0].name && commanders[1].name) {
       await this.server.rcon.broadcast(
-        `CMD сторон: ${commanders[0].name} и ${commanders[1].name}!`
+        this
+          .locale`CMD of sides: ${commanders[0].name} VS ${commanders[1].name}!`
       );
       return;
     }
